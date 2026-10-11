@@ -1,49 +1,51 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import SEO from '../components/SEO';
 import api from '../api/axios';
 
 const AddRecipe = () => {
-  const [formData, setFormData] = useState({
-    title: '', description: '', ingredients: '', steps: '',
-    category: 'Breakfast', prepTime: '', cookTime: '', servings: '',
-  });
+  const [formData, setFormData] = useState({ title: '', description: '', ingredients: '', steps: '', category: 'Dinner', prepTime: 0, cookTime: 0, servings: 2 });
   const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  useEffect(() => () => { if (imagePreview) URL.revokeObjectURL(imagePreview); }, [imagePreview]);
 
-  const handleImage = (e) => {
-    const file = e.target.files[0];
+  const handleChange = (event) => setFormData((current) => ({ ...current, [event.target.name]: event.target.value }));
+  const handleImage = (event) => {
+    const file = event.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) return toast.error('Image must be under 5MB');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      toast.error('Choose a JPG, PNG, or WebP image');
+      event.target.value = '';
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error('Image must be 3 MB or smaller');
+      event.target.value = '';
+      return;
+    }
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImage(file);
     setImagePreview(URL.createObjectURL(file));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setLoading(true);
     try {
-      const data = new FormData();
-      data.append('title', formData.title);
-      data.append('description', formData.description);
-      data.append('category', formData.category);
-      data.append('prepTime', formData.prepTime || 0);
-      data.append('cookTime', formData.cookTime || 0);
-      data.append('servings', formData.servings || 2);
-      data.append('ingredients', JSON.stringify(formData.ingredients.split('\n').filter(Boolean)));
-      data.append('steps', JSON.stringify(formData.steps.split('\n').filter(Boolean)));
-      if (image) data.append('image', image);
-
-      await api.post('/recipes', data, { headers: { 'Content-Type': 'multipart/form-data' } });
-      toast.success('Recipe published! 🎉');
-      navigate('/');
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to publish');
+      const payload = new FormData();
+      for (const [key, value] of Object.entries(formData)) payload.append(key, value);
+      payload.set('ingredients', JSON.stringify(formData.ingredients.split('\n').map((value) => value.trim()).filter(Boolean)));
+      payload.set('steps', JSON.stringify(formData.steps.split('\n').map((value) => value.trim()).filter(Boolean)));
+      if (image) payload.append('image', image);
+      const { data } = await api.post('/recipes', payload);
+      toast.success('Your recipe is on the table');
+      navigate(`/recipe/${data.recipe._id}`);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Could not publish this recipe');
     } finally {
       setLoading(false);
     }
@@ -51,71 +53,35 @@ const AddRecipe = () => {
 
   return (
     <>
-      <SEO title="Add Recipe" />
-      <div className="container py-5" style={{ marginTop: '80px' }}>
-        <div className="glass-card p-5 animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <h2 className="fw-bolder mb-4">Share a New Recipe</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Recipe Title</label>
-              <input type="text" name="title" className="form-control bg-transparent text-white" value={formData.title} onChange={handleChange} required />
+      <SEO title="Share a Recipe" description="Share a favorite recipe with the Arshiya's Kitchen community." />
+      <main className="container page-shell">
+        <section className="form-panel">
+          <p className="eyebrow">Pass a good thing around</p>
+          <h1>Share a recipe</h1>
+          <p className="auth-copy" style={{ textAlign: 'left' }}>Add the details that help someone else make it their own.</p>
+          <form onSubmit={handleSubmit} className="recipe-form">
+            <label>Recipe title<input name="title" className="form-control" minLength="3" maxLength="120" placeholder="The dish everyone asks you to make" value={formData.title} onChange={handleChange} required /></label>
+            <label>Short description<textarea name="description" className="form-control" rows="3" minLength="10" maxLength="500" placeholder="A little about what makes it special…" value={formData.description} onChange={handleChange} required /></label>
+            <div className="form-columns">
+              <label>Ingredients <span className="field-hint">One ingredient per line</span><textarea name="ingredients" className="form-control" rows="7" placeholder={'2 cups flour\n1 tsp salt'} value={formData.ingredients} onChange={handleChange} required /></label>
+              <label>Instructions <span className="field-hint">One step per line</span><textarea name="steps" className="form-control" rows="7" placeholder={'Preheat the oven…\nMix the ingredients…'} value={formData.steps} onChange={handleChange} required /></label>
             </div>
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Short Description</label>
-              <textarea name="description" className="form-control bg-transparent text-white" rows="2" value={formData.description} onChange={handleChange} required />
+            <div className="form-columns form-columns-3">
+              <label>Category<select name="category" className="form-select" value={formData.category} onChange={handleChange}>{['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack'].map((category) => <option key={category}>{category}</option>)}</select></label>
+              <label>Prep time (mins)<input name="prepTime" type="number" min="0" max="1440" className="form-control" value={formData.prepTime} onChange={handleChange} /></label>
+              <label>Cook time (mins)<input name="cookTime" type="number" min="0" max="1440" className="form-control" value={formData.cookTime} onChange={handleChange} /></label>
             </div>
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label className="form-label fw-semibold">Ingredients (one per line)</label>
-                <textarea name="ingredients" className="form-control bg-transparent text-white" rows="5" value={formData.ingredients} onChange={handleChange} required />
-              </div>
-              <div className="col-md-6 mb-3">
-                <label className="form-label fw-semibold">Steps (one per line)</label>
-                <textarea name="steps" className="form-control bg-transparent text-white" rows="5" value={formData.steps} onChange={handleChange} required />
-              </div>
+            <div className="form-columns">
+              <label>Servings<input name="servings" type="number" min="1" max="100" className="form-control" value={formData.servings} onChange={handleChange} /></label>
+              <label>Recipe photo <span className="field-hint">JPG, PNG, or WebP · up to 3 MB</span><input type="file" accept="image/jpeg,image/png,image/webp" className="form-control" onChange={handleImage} /></label>
             </div>
-            <div className="row">
-              <div className="col-md-4 mb-3">
-                <label className="form-label fw-semibold">Category</label>
-                <select name="category" className="form-select bg-transparent text-white" value={formData.category} onChange={handleChange}>
-                  <option value="Breakfast">Breakfast</option>
-                  <option value="Lunch">Lunch</option>
-                  <option value="Dinner">Dinner</option>
-                  <option value="Dessert">Dessert</option>
-                  <option value="Snack">Snack</option>
-                </select>
-              </div>
-              <div className="col-md-4 mb-3">
-                <label className="form-label fw-semibold">Prep Time (mins)</label>
-                <input type="number" name="prepTime" className="form-control bg-transparent text-white" value={formData.prepTime} onChange={handleChange} />
-              </div>
-              <div className="col-md-4 mb-3">
-                <label className="form-label fw-semibold">Cook Time (mins)</label>
-                <input type="number" name="cookTime" className="form-control bg-transparent text-white" value={formData.cookTime} onChange={handleChange} />
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label className="form-label fw-semibold">Servings</label>
-                <input type="number" name="servings" className="form-control bg-transparent text-white" value={formData.servings} onChange={handleChange} />
-              </div>
-              <div className="col-md-6 mb-3">
-                <label className="form-label fw-semibold">Recipe Image (max 5MB)</label>
-                <input type="file" accept="image/*" className="form-control bg-transparent text-white" onChange={handleImage} />
-              </div>
-            </div>
-            {imagePreview && (
-              <div className="mb-3">
-                <img src={imagePreview} alt="Preview" className="img-fluid rounded" style={{ maxHeight: '250px' }} />
-              </div>
-            )}
-            <button className="btn btn-premium w-100 py-2 mt-3" type="submit" disabled={loading}>
-              {loading ? 'Publishing...' : 'Publish Recipe'}
-            </button>
+            {imagePreview && <img className="edit-image-preview" src={imagePreview} alt="Recipe photo preview" />}
+            <button className="btn btn-premium btn-lg" type="submit" disabled={loading}>{loading ? 'Publishing…' : 'Publish recipe'}</button>
           </form>
-        </div>
-      </div>
+        </section>
+      </main>
     </>
   );
 };
+
 export default AddRecipe;

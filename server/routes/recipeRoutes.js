@@ -1,32 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getRecipes, getMyRecipes, getRecipeById, createRecipe, updateRecipe, deleteRecipe,
+  getRecipes, getMyRecipes, getRecipeById, createRecipe, updateRecipe, deleteRecipe, addReview,
 } = require('../controllers/recipeController');
 const { protect } = require('../middleware/authMiddleware');
-const { recipeValidator, mongoIdValidator } = require('../middleware/validators');
+const { recipeValidator, reviewValidator, mongoIdValidator } = require('../middleware/validators');
 const { upload } = require('../config/cloudinary');
 
-// Parse JSON arrays if sent as strings (from multipart form-data)
 const parseArrays = (req, res, next) => {
-  if (typeof req.body.ingredients === 'string') {
-    try { req.body.ingredients = JSON.parse(req.body.ingredients); } catch { req.body.ingredients = req.body.ingredients.split('\n').filter(Boolean); }
-  }
-  if (typeof req.body.steps === 'string') {
-    try { req.body.steps = JSON.parse(req.body.steps); } catch { req.body.steps = req.body.steps.split('\n').filter(Boolean); }
+  for (const key of ['ingredients', 'steps']) {
+    if (typeof req.body[key] === 'string') {
+      try { req.body[key] = JSON.parse(req.body[key]); }
+      catch { req.body[key] = req.body[key].split('\n').map((value) => value.trim()).filter(Boolean); }
+    }
   }
   next();
 };
 
-router.route('/')
-  .get(getRecipes)
-  .post(protect, upload.single('image'), parseArrays, recipeValidator, createRecipe);
-
+router.route('/').get(getRecipes).post(protect, upload.single('image'), parseArrays, recipeValidator, createRecipe);
 router.get('/myrecipes', protect, getMyRecipes);
-
+router.post('/:id/reviews', protect, mongoIdValidator, reviewValidator, addReview);
 router.route('/:id')
   .get(mongoIdValidator, getRecipeById)
-  .put(protect, mongoIdValidator, upload.single('image'), parseArrays, updateRecipe)
+  .put(protect, mongoIdValidator, upload.single('image'), parseArrays, recipeValidator, updateRecipe)
   .delete(protect, mongoIdValidator, deleteRecipe);
 
 module.exports = router;
