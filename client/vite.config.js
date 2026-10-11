@@ -11,13 +11,5 @@ export default defineConfig({
     sourcemap: false,
     minify: 'esbuild',
     chunkSizeWarningLimit: 800,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['bootstrap', 'react-toastify', 'react-helmet-async'],
-        },
-      },
-    },
   },
 });
