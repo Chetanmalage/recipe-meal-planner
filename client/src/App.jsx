@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import Navbar from './components/Navbar';
 import { LoadingPage } from './components/LoadingSkeleton';
@@ -19,7 +19,8 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
+  const location = useLocation();
+  if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
   if (adminOnly && user.role !== 'admin') return <Navigate to="/" replace />;
   return children;
 };
@@ -40,7 +41,7 @@ function App() {
             <Route path="/recipe/:id" element={<RecipeDetails />} />
             <Route path="/add-recipe" element={<ProtectedRoute><AddRecipe /></ProtectedRoute>} />
             <Route path="/edit-recipe/:id" element={<ProtectedRoute><EditRecipe /></ProtectedRoute>} />
-            <Route path="/favourites" element={<ProtectedRoute><Favourites /></ProtectedRoute>} />
+            <Route path="/favourites" element={<Favourites />} />
             <Route path="/meal-planner" element={<ProtectedRoute><MealPlanner /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />

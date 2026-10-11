@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import SEO from '../components/SEO';
 import { LoadingPage } from '../components/LoadingSkeleton';
@@ -25,15 +25,23 @@ const scaleIngredient = (ingredient, ratio) => {
       : Number(amount);
   const scaled = quantity * ratio;
   const formatted = Number.isInteger(scaled) ? String(scaled) : String(Number(scaled.toFixed(2)));
-  return `${formatted}${spacing}${rest}`;
+  const unit = rest.match(/^((?:[a-z-]+\s+)?)(cups?|tablespoons?|teaspoons?|cloves?|lemons?|eggs?|cans?|onions?)(\b[\s\S]*)$/i);
+  if (!unit) return `${formatted}${spacing}${rest}`;
+  const [, prefix, originalUnit, suffix] = unit;
+  const singularUnit = originalUnit.toLowerCase().replace(/s$/, '');
+  const scaledUnit = Number(formatted) > 1 ? `${singularUnit}s` : singularUnit;
+  return `${formatted}${spacing}${prefix}${scaledUnit}${suffix}`;
 };
 
 const RecipeDetails = () => {
   const { id } = useParams();
   const { user } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [isFavourite, setIsFavourite] = useState(() => id.startsWith('starter-') && getSavedStarterIds().includes(id));
   const [servings, setServings] = useState(2);
   const [rating, setRating] = useState('5');
@@ -42,6 +50,9 @@ const RecipeDetails = () => {
   useEffect(() => {
     let active = true;
     const loadRecipe = async () => {
+      setLoading(true);
+      setRecipe(null);
+      setLoadError(false);
       const starter = findStarterRecipe(id);
       if (starter) {
         if (active) {
@@ -58,13 +69,11 @@ const RecipeDetails = () => {
           setRecipe(data.recipe);
           setServings(data.recipe.servings || 2);
         }
-      } catch {
-        const starter = findStarterRecipe(id);
-        if (active && starter) {
-          setRecipe(starter);
-          setServings(starter.servings);
-        } else if (active) {
+      } catch (error) {
+        if (active && error.response?.status === 404) {
           navigate('/', { replace: true });
+        } else if (active) {
+          setLoadError(true);
         }
       } finally {
         if (active) setLoading(false);
@@ -72,7 +81,7 @@ const RecipeDetails = () => {
     };
     void loadRecipe();
     return () => { active = false; };
-  }, [id, navigate]);
+  }, [id, navigate, reloadKey]);
 
   useEffect(() => {
     let active = true;
@@ -104,7 +113,7 @@ const RecipeDetails = () => {
     }
     if (!user) {
       toast.info('Log in to save community recipes to your favourites');
-      navigate('/login');
+      navigate('/login', { state: { from: { pathname: location.pathname, search: location.search, hash: location.hash }, saveFavourite: true } });
       return;
     }
     try {
@@ -143,6 +152,22 @@ const RecipeDetails = () => {
   };
 
   if (loading) return <LoadingPage />;
+  if (!recipe && loadError) return (
+    <>
+      <SEO title="Recipe temporarily unavailable" description="This recipe could not be loaded just now. Please try again shortly." />
+      <main className="container page-shell">
+        <section className="empty-state" role="alert">
+          <span aria-hidden="true">☕</span>
+          <h1>We couldn’t load this recipe just yet.</h1>
+          <p>Your recipe link is still here. Check your connection, then try again.</p>
+          <div className="recipe-actions">
+            <button className="btn btn-premium" type="button" onClick={() => { setLoading(true); setLoadError(false); setReloadKey((current) => current + 1); }}>Try again</button>
+            <Link className="btn btn-glass" to="/">Browse recipes</Link>
+          </div>
+        </section>
+      </main>
+    </>
+  );
   if (!recipe) return null;
 
   const isAuthor = !recipe.isStarter && user && recipe.author && user._id === recipe.author._id;
@@ -200,7 +225,7 @@ const RecipeDetails = () => {
                   <button className="btn btn-premium" type="submit" disabled={submittingReview}>{submittingReview ? 'Sending…' : 'Post review'}</button>
                 </form>
               ) : !user ? (
-                <p className="review-prompt"><Link to="/login">Log in</Link> to leave a review.</p>
+                <p className="review-prompt"><Link to="/login" state={{ from: { pathname: location.pathname, search: location.search, hash: location.hash } }}>Log in</Link> to leave a review.</p>
               ) : <p className="review-prompt">Thanks for contributing a review to this recipe.</p>}
               {recipe.reviews?.length ? <div className="review-list">{[...recipe.reviews].reverse().map((review) => <article className="review-card" key={review._id}><div className="review-card-top"><strong>{review.name}</strong><span className="rating-stars" aria-label={`${review.rating} out of 5 stars`}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span></div><p>{review.comment}</p></article>)}</div> : <p className="review-prompt">No reviews yet. Be the first to share how it turned out.</p>}
             </section>}

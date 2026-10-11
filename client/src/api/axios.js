@@ -23,8 +23,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const message = error.response?.data?.message || error.message || 'Something went wrong';
+    const status = error.response?.status;
+    const backendMessage = error.response?.data?.message;
     const requestUrl = error.config?.url || '';
+    const message = !error.response
+      ? "We couldn't reach the kitchen. Check your connection and try again."
+      : status >= 500
+        ? 'Something went wrong on our side. Please try again shortly.'
+        : status === 404
+          ? "We couldn't find that recipe or item."
+          : status === 429
+            ? 'Please wait a moment before trying again.'
+            : backendMessage || 'Please try again.';
 
     if (error.response?.status === 401 && !requestUrl.includes('/auth/login') && !requestUrl.includes('/auth/register')) {
       localStorage.removeItem('user');
@@ -32,7 +42,9 @@ api.interceptors.response.use(
     }
 
     const silent = ['/auth/login', '/auth/register'].some((path) => requestUrl.includes(path));
-    if (!silent) toast.error(message);
+    const readHandledInline = (window.location.pathname === '/' && requestUrl.includes('/recipes'))
+      || window.location.pathname.startsWith('/recipe/');
+    if (!silent && !readHandledInline && error.code !== 'ERR_CANCELED') toast.error(message);
     return Promise.reject(error);
   },
 );
