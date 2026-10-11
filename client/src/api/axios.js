@@ -7,38 +7,34 @@ const api = axios.create({
   timeout: 15000,
 });
 
-// Request interceptor — attach token
 api.interceptors.request.use(
   (config) => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user?.token) {
-      config.headers.Authorization = `Bearer ${user.token}`;
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      if (user?.token) config.headers.Authorization = `Bearer ${user.token}`;
+    } catch {
+      localStorage.removeItem('user');
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
-// Response interceptor — handle errors globally
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     const message = error.response?.data?.message || error.message || 'Something went wrong';
+    const requestUrl = error.config?.url || '';
 
-    // Token expired → logout
-    if (error.response?.status === 401 && !error.config.url.includes('/auth/login')) {
+    if (error.response?.status === 401 && !requestUrl.includes('/auth/login') && !requestUrl.includes('/auth/register')) {
       localStorage.removeItem('user');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
+      if (window.location.pathname !== '/login') window.location.href = '/login';
     }
 
-    // Don't spam toasts for login/register (forms handle it)
-    const silent = ['/auth/login', '/auth/register'].some((p) => error.config?.url?.includes(p));
+    const silent = ['/auth/login', '/auth/register'].some((path) => requestUrl.includes(path));
     if (!silent) toast.error(message);
-
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

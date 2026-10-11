@@ -6,6 +6,8 @@ const notFound = (req, res, next) => {
 
 const errorHandler = (err, req, res, next) => {
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  if (err.name === 'MulterError') statusCode = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+  if (err.message === 'Only JPG, PNG, and WebP files are allowed') statusCode = 400;
   let message = err.message;
 
   // Mongoose bad ObjectId

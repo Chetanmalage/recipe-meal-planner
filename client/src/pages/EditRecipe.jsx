@@ -1,104 +1,92 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import SEO from '../components/SEO';
+import { LoadingPage } from '../components/LoadingSkeleton';
+import api from '../api/axios';
 
 const EditRecipe = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ title: '', description: '', ingredients: '', steps: '', imageUrl: '', category: 'Breakfast', prepTime: '', cookTime: '', servings: '' });
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [image, setImage] = useState(null);
+  const [currentImage, setCurrentImage] = useState('');
+  const [formData, setFormData] = useState({ title: '', description: '', ingredients: '', steps: '', category: 'Breakfast', prepTime: 0, cookTime: 0, servings: 2 });
 
   useEffect(() => {
-    const fetchRecipe = async () => {
-      const res = await fetch(`/api/recipes/${id}`);
-      const data = await res.json();
-      setFormData({
-        title: data.title, description: data.description,
-        ingredients: data.ingredients.join('\n'), steps: data.steps.join('\n'),
-        imageUrl: data.imageUrl, category: data.category,
-        prepTime: data.prepTime, cookTime: data.cookTime, servings: data.servings
-      });
-    };
-    fetchRecipe();
-  }, [id]);
+    let active = true;
+    api.get(`/recipes/${id}`)
+      .then(({ data }) => {
+        if (!active) return;
+        const recipe = data.recipe;
+        setCurrentImage(recipe.imageUrl || '');
+        setFormData({
+          title: recipe.title || '', description: recipe.description || '',
+          ingredients: (recipe.ingredients || []).join('\n'), steps: (recipe.steps || []).join('\n'),
+          category: recipe.category || 'Breakfast', prepTime: recipe.prepTime ?? 0,
+          cookTime: recipe.cookTime ?? 0, servings: recipe.servings ?? 2,
+        });
+      })
+      .catch(() => navigate('/', { replace: true }))
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [id, navigate]);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (event) => setFormData((current) => ({ ...current, [event.target.name]: event.target.value }));
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const token = JSON.parse(localStorage.getItem('user'))?.token;
-    const recipeData = {
-      ...formData,
-      ingredients: formData.ingredients.split('\n').filter(i => i.trim()),
-      steps: formData.steps.split('\n').filter(s => s.trim()),
-      prepTime: Number(formData.prepTime), cookTime: Number(formData.cookTime), servings: Number(formData.servings)
-    };
-    const res = await fetch(`/api/recipes/${id}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify(recipeData),
-    });
-    if (res.ok) navigate(`/recipe/${id}`);
-    else setError('Failed to update recipe');
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+    try {
+      const payload = new FormData();
+      for (const [key, value] of Object.entries(formData)) payload.append(key, value);
+      payload.set('ingredients', JSON.stringify(formData.ingredients.split('\n').map((value) => value.trim()).filter(Boolean)));
+      payload.set('steps', JSON.stringify(formData.steps.split('\n').map((value) => value.trim()).filter(Boolean)));
+      if (image) payload.append('image', image);
+      await api.put(`/recipes/${id}`, payload);
+      toast.success('Recipe updated');
+      navigate(`/recipe/${id}`);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Could not update this recipe');
+    } finally {
+      setSaving(false);
+    }
   };
 
+  if (loading) return <LoadingPage />;
+
   return (
-    <div className="container py-5" style={{ marginTop: '80px' }}>
-      <div className="glass-card p-5 animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <h2 className="fw-bolder mb-4">Edit Recipe</h2>
-        {error && <div className="alert alert-danger">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          {/* Same form fields as AddRecipe, but using formData values */}
-          <div className="mb-3">
-            <label className="form-label fw-semibold">Recipe Title</label>
-            <input type="text" name="title" className="form-control bg-transparent text-white" value={formData.title} onChange={handleChange} required />
-          </div>
-          <div className="mb-3">
-            <label className="form-label fw-semibold">Short Description</label>
-            <textarea name="description" className="form-control bg-transparent text-white" rows="2" value={formData.description} onChange={handleChange} required />
-          </div>
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Ingredients (one per line)</label>
-              <textarea name="ingredients" className="form-control bg-transparent text-white" rows="5" value={formData.ingredients} onChange={handleChange} required />
+    <>
+      <SEO title="Edit Recipe" />
+      <main className="container page-shell">
+        <section className="form-panel">
+          <p className="eyebrow">Your recipe, refined</p>
+          <h1>Edit recipe</h1>
+          <form onSubmit={handleSubmit} className="recipe-form">
+            <label>Recipe title<input name="title" className="form-control" minLength="3" maxLength="120" value={formData.title} onChange={handleChange} required /></label>
+            <label>Short description<textarea name="description" className="form-control" rows="3" minLength="10" maxLength="500" value={formData.description} onChange={handleChange} required /></label>
+            <div className="form-columns">
+              <label>Ingredients <span className="field-hint">One ingredient per line</span><textarea name="ingredients" className="form-control" rows="7" value={formData.ingredients} onChange={handleChange} required /></label>
+              <label>Instructions <span className="field-hint">One step per line</span><textarea name="steps" className="form-control" rows="7" value={formData.steps} onChange={handleChange} required /></label>
             </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Steps (one per line)</label>
-              <textarea name="steps" className="form-control bg-transparent text-white" rows="5" value={formData.steps} onChange={handleChange} required />
+            <div className="form-columns form-columns-3">
+              <label>Category<select name="category" className="form-select" value={formData.category} onChange={handleChange}>{['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack'].map((category) => <option key={category}>{category}</option>)}</select></label>
+              <label>Prep time (mins)<input name="prepTime" type="number" min="0" max="1440" className="form-control" value={formData.prepTime} onChange={handleChange} /></label>
+              <label>Cook time (mins)<input name="cookTime" type="number" min="0" max="1440" className="form-control" value={formData.cookTime} onChange={handleChange} /></label>
             </div>
-          </div>
-          <div className="row">
-            <div className="col-md-4 mb-3">
-              <label className="form-label fw-semibold">Category</label>
-              <select name="category" className="form-select bg-transparent text-white" value={formData.category} onChange={handleChange}>
-                <option value="Breakfast">Breakfast</option>
-                <option value="Lunch">Lunch</option>
-                <option value="Dinner">Dinner</option>
-                <option value="Dessert">Dessert</option>
-                <option value="Snack">Snack</option>
-              </select>
+            <div className="form-columns">
+              <label>Servings<input name="servings" type="number" min="1" max="100" className="form-control" value={formData.servings} onChange={handleChange} /></label>
+              <label>Replace photo <span className="field-hint">JPG, PNG, or WebP · max 5 MB</span><input type="file" accept="image/jpeg,image/png,image/webp" className="form-control" onChange={(event) => setImage(event.target.files?.[0] || null)} /></label>
             </div>
-            <div className="col-md-4 mb-3">
-              <label className="form-label fw-semibold">Prep Time (mins)</label>
-              <input type="number" name="prepTime" className="form-control bg-transparent text-white" value={formData.prepTime} onChange={handleChange} />
-            </div>
-            <div className="col-md-4 mb-3">
-              <label className="form-label fw-semibold">Cook Time (mins)</label>
-              <input type="number" name="cookTime" className="form-control bg-transparent text-white" value={formData.cookTime} onChange={handleChange} />
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Servings</label>
-              <input type="number" name="servings" className="form-control bg-transparent text-white" value={formData.servings} onChange={handleChange} />
-            </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Image URL (optional)</label>
-              <input type="text" name="imageUrl" className="form-control bg-transparent text-white" value={formData.imageUrl} onChange={handleChange} />
-            </div>
-          </div>
-          <button className="btn btn-premium w-100 py-2 mt-3" type="submit">Update Recipe</button>
-        </form>
-      </div>
-    </div>
+            {currentImage && <img className="edit-image-preview" src={currentImage} alt="Current recipe" />}
+            {image && <p className="field-hint">New photo selected: {image.name}</p>}
+            <button className="btn btn-premium btn-lg" type="submit" disabled={saving}>{saving ? 'Saving changes…' : 'Save changes'}</button>
+          </form>
+        </section>
+      </main>
+    </>
   );
 };
+
 export default EditRecipe;

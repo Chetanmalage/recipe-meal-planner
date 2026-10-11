@@ -1,24 +1,27 @@
 import { Link } from 'react-router-dom';
 
 const RecipeCard = ({ recipe }) => {
+  const rating = Number(recipe.rating || 0);
+  const image = recipe.imageUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=900&q=80';
+  const description = recipe.description || 'A delicious recipe from the Arshiya’s Kitchen community.';
+
   return (
-    <div className="glass-card h-100 d-flex flex-column animate-fade-in">
-      <div className="position-relative">
-        <img src={recipe.imageUrl} className="card-img-top recipe-img" alt={recipe.title} />
-        <span className="badge bg-dark bg-opacity-75 position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill">{recipe.category}</span>
-      </div>
-      <div className="card-body d-flex flex-column p-4">
-        <h5 className="card-title fw-bold mb-2">{recipe.title}</h5>
-        <p className="card-text text-secondary small flex-grow-1">{recipe.description.substring(0, 90)}...</p>
-        <div className="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-secondary border-opacity-25">
-          <div className="text-warning">
-            {'★'.repeat(Math.round(recipe.rating))}
-            <span className="text-secondary ms-1">({recipe.numReviews})</span>
-          </div>
-          <Link to={`/recipe/${recipe._id}`} className="btn btn-premium btn-sm">View</Link>
+    <article className="recipe-card animate-fade-in">
+      <Link to={`/recipe/${recipe._id}`} className="recipe-card-image-link" aria-label={`View ${recipe.title}`}>
+        <img src={image} className="recipe-card-image" alt={recipe.title} loading="lazy" />
+        <span className="category-pill">{recipe.category || 'Kitchen favorite'}</span>
+      </Link>
+      <div className="recipe-card-body">
+        <div className="recipe-card-meta"><span>{recipe.prepTime ? `${recipe.prepTime} min prep` : 'Made to enjoy'}</span><span className="rating-stars" aria-label={`${rating.toFixed(1)} out of 5 stars`}>★ <span>{rating.toFixed(1)}</span></span></div>
+        <h2><Link to={`/recipe/${recipe._id}`}>{recipe.title}</Link></h2>
+        <p>{description.length > 105 ? `${description.slice(0, 105).trimEnd()}…` : description}</p>
+        <div className="recipe-card-footer">
+          <span>{recipe.author?.name ? `By ${recipe.author.name}` : `${recipe.numReviews || 0} reviews`}</span>
+          <Link to={`/recipe/${recipe._id}`} className="text-link">View recipe <span aria-hidden="true">↗</span></Link>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
+
 export default RecipeCard;

@@ -1,58 +1,47 @@
 const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
 
-const hasCloudinary = !!(
-  process.env.CLOUDINARY_CLOUD_NAME &&
-  process.env.CLOUDINARY_CLOUD_NAME !== 'dummy' &&
-  process.env.CLOUDINARY_API_KEY &&
-  process.env.CLOUDINARY_API_KEY !== 'dummy' &&
-  process.env.CLOUDINARY_API_SECRET &&
-  process.env.CLOUDINARY_API_SECRET !== 'dummy'
+const hasCloudinary = Boolean(
+  process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_CLOUD_NAME !== 'dummy' &&
+  process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_KEY !== 'dummy' &&
+  process.env.CLOUDINARY_API_SECRET && process.env.CLOUDINARY_API_SECRET !== 'dummy'
 );
 
-let upload;
+const imageFilter = (req, file, callback) => {
+  if (['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)) return callback(null, true);
+  callback(new Error('Only JPG, PNG, and WebP files are allowed'));
+};
 
+let storage;
 if (hasCloudinary) {
-  // Real Cloudinary storage
-  const cloudinary = require('cloudinary').v2;
-  const { CloudinaryStorage } = require('multer-storage-cloudinary');
-
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
-
-  const storage = new CloudinaryStorage({
-    cloudinary,
-    params: {
-      folder: 'arshiya-recipes',
-      allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-      transformation: [{ width: 1200, height: 800, crop: 'limit', quality: 'auto' }],
+  storage = {
+    _handleFile(req, file, callback) {
+      const stream = cloudinary.uploader.upload_stream({
+        folder: 'arshiya-recipes',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        transformation: [{ width: 1200, height: 800, crop: 'limit', quality: 'auto' }],
+      }, (error, result) => {
+        if (error) return callback(error);
+        callback(null, { path: result.secure_url, secure_url: result.secure_url, public_id: result.public_id, size: result.bytes });
+      });
+      file.stream.pipe(stream);
     },
-  });
-
-  upload = multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-      const allowed = /jpeg|jpg|png|webp/;
-      if (allowed.test(file.mimetype)) return cb(null, true);
-      cb(new Error('Only JPG, PNG, and WEBP files are allowed'));
+    _removeFile(req, file, callback) {
+      if (!file.public_id) return callback(null);
+      cloudinary.uploader.destroy(file.public_id).then(() => callback(null)).catch(callback);
     },
-  });
-
-  console.log('✅ Cloudinary storage ready');
+  };
+  console.log('Cloudinary image storage enabled');
 } else {
-  // Dev fallback — accepts file in memory but does NOT save it.
-  // The frontend must send an `imageUrl` string instead.
-  upload = multer({
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 5 * 1024 * 1024 },
-  });
-
-  console.warn('⚠️  Cloudinary not configured. Image uploads will be ignored.');
-  console.warn('   → Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET in .env');
-  console.warn('   → Or provide an `imageUrl` field from the frontend.');
+  // Development convenience: small images are stored as data URLs in MongoDB.
+  storage = multer.memoryStorage();
+  console.warn('Cloudinary is not configured; images up to 3 MB will be stored in MongoDB for local development.');
 }
 
-module.exports = { upload };
+const upload = multer({ storage, limits: { fileSize: 3 * 1024 * 1024 }, fileFilter: imageFilter });
+module.exports = { upload, hasCloudinary };

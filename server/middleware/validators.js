@@ -1,13 +1,9 @@
-const { body, param, query, validationResult } = require('express-validator');
+const { body, param, validationResult } = require('express-validator');
 
 const handleValidation = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      message: errors.array()[0].msg,
-      errors: errors.array(),
-    });
+    return res.status(400).json({ success: false, message: errors.array()[0].msg, errors: errors.array() });
   }
   next();
 };
@@ -15,7 +11,7 @@ const handleValidation = (req, res, next) => {
 const registerValidator = [
   body('name').trim().isLength({ min: 2, max: 50 }).withMessage('Name must be 2-50 characters'),
   body('email').trim().isEmail().withMessage('Please provide a valid email').normalizeEmail(),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('password').isLength({ min: 6, max: 128 }).withMessage('Password must be 6-128 characters'),
   handleValidation,
 ];
 
@@ -29,22 +25,22 @@ const recipeValidator = [
   body('title').trim().isLength({ min: 3, max: 120 }).withMessage('Title must be 3-120 characters'),
   body('description').trim().isLength({ min: 10, max: 500 }).withMessage('Description must be 10-500 characters'),
   body('ingredients').isArray({ min: 1 }).withMessage('At least one ingredient is required'),
+  body('ingredients.*').isString().trim().isLength({ min: 1, max: 200 }).withMessage('Ingredients must be 1-200 characters'),
   body('steps').isArray({ min: 1 }).withMessage('At least one step is required'),
+  body('steps.*').isString().trim().isLength({ min: 1, max: 1000 }).withMessage('Steps must be 1-1000 characters'),
   body('category').isIn(['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack']).withMessage('Invalid category'),
-  body('prepTime').optional().isInt({ min: 0, max: 1440 }),
-  body('cookTime').optional().isInt({ min: 0, max: 1440 }),
-  body('servings').optional().isInt({ min: 1, max: 100 }),
+  body('prepTime').optional().isInt({ min: 0, max: 1440 }).toInt(),
+  body('cookTime').optional().isInt({ min: 0, max: 1440 }).toInt(),
+  body('servings').optional().isInt({ min: 1, max: 100 }).toInt(),
   handleValidation,
 ];
 
-const mongoIdValidator = [
-  param('id').isMongoId().withMessage('Invalid ID'),
+const reviewValidator = [
+  body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5').toInt(),
+  body('comment').trim().isLength({ min: 3, max: 500 }).withMessage('Review must be 3-500 characters'),
   handleValidation,
 ];
 
-module.exports = {
-  registerValidator,
-  loginValidator,
-  recipeValidator,
-  mongoIdValidator,
-};
+const mongoIdValidator = [param('id').isMongoId().withMessage('Invalid ID'), handleValidation];
+
+module.exports = { registerValidator, loginValidator, recipeValidator, reviewValidator, mongoIdValidator };
