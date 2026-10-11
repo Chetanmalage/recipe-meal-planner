@@ -18,9 +18,9 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar navbar-premium fixed-top">
+    <nav className="navbar navbar-premium fixed-top" aria-label="Main navigation">
       <div className="container nav-inner">
-        <Link className="navbar-brand d-flex align-items-center gap-2" to="/" onClick={closeMenu}>
+        <Link className="navbar-brand d-flex align-items-center gap-2" to="/" onClick={closeMenu} aria-label="Arshiya’s Kitchen home">
           <span className="brand-mark" aria-hidden="true">A</span>
           <span className="fw-bolder">Arshiya&apos;s Kitchen</span>
         </Link>
@@ -29,11 +29,12 @@ const Navbar = () => {
           type="button"
           aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
           aria-expanded={menuOpen}
+          aria-controls="primary-navigation"
           onClick={() => setMenuOpen((open) => !open)}
         >
           <span /><span /><span />
         </button>
-        <div className={`navbar-content${menuOpen ? ' is-open' : ''}`}>
+        <div className={`navbar-content${menuOpen ? ' is-open' : ''}`} id="primary-navigation">
           <div className="navbar-links">
             <NavLink className={navClass} to="/" end onClick={closeMenu}>Discover</NavLink>
             {user && <NavLink className={navClass} to="/favourites" onClick={closeMenu}>Favourites</NavLink>}
@@ -41,7 +42,7 @@ const Navbar = () => {
             {user?.role === 'admin' && <NavLink className={navClass} to="/admin" onClick={closeMenu}>Admin</NavLink>}
           </div>
           <div className="navbar-actions">
-            <button className="btn btn-glass theme-toggle" type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`} title="Toggle theme">
+            <button className="btn btn-glass theme-toggle" type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}>
               {theme === 'dark' ? '☼' : '☾'}
             </button>
             {user ? (
@@ -59,7 +60,7 @@ const Navbar = () => {
             ) : (
               <>
                 <NavLink className="nav-link" to="/login" onClick={closeMenu}>Log in</NavLink>
-                <Link className="btn btn-premium btn-sm" to="/register" onClick={closeMenu}>Get started</Link>
+                <Link className="btn btn-premium btn-sm" to="/register" onClick={closeMenu}>Join the table</Link>
               </>
             )}
           </div>

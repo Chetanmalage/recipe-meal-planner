@@ -23,3 +23,5 @@ npm-debug.log*
 
 # Uploads
 uploads/
+# The Vite production API base is public configuration, not a secret.
+!client/.env.production

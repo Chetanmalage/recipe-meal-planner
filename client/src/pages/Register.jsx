@@ -1,51 +1,52 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import SEO from '../components/SEO';
 
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError('');
     try {
-      await register(name, email, password);
+      await register(name.trim(), email.trim(), password);
       navigate('/');
-    } catch (err) {
-      setError(err.message);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || requestError.message || 'Your account could not be created. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="d-flex align-items-center justify-content-center vh-100" style={{ background: 'var(--bg-primary)' }}>
-      <div className="glass-card p-5 animate-fade-in" style={{ width: '100%', maxWidth: '450px' }}>
-        <div className="text-center mb-4">
-          <h2 className="fw-bolder">Join Arshiya's Kitchen</h2>
-          <p className="text-secondary">Create an account to start sharing and planning.</p>
-        </div>
-        {error && <div className="alert alert-danger">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label fw-semibold">Full Name</label>
-            <input type="text" className="form-control bg-transparent text-white" value={name} onChange={(e) => setName(e.target.value)} required />
-          </div>
-          <div className="mb-3">
-            <label className="form-label fw-semibold">Email Address</label>
-            <input type="email" className="form-control bg-transparent text-white" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </div>
-          <div className="mb-4">
-            <label className="form-label fw-semibold">Password</label>
-            <input type="password" className="form-control bg-transparent text-white" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
-          </div>
-          <button className="btn btn-premium w-100 py-2" type="submit">Create Account</button>
-        </form>
-        <p className="mt-4 text-center text-secondary">Already have an account? <Link to="/login" style={{ color: 'var(--accent)' }}>Log In</Link></p>
-      </div>
-    </div>
+    <>
+      <SEO title="Join the kitchen" description="Create an account to share recipes, keep favorites, and plan your week." />
+      <main className="auth-shell">
+        <section className="auth-panel animate-fade-in" aria-labelledby="register-title">
+          <span className="auth-brand-mark" aria-hidden="true">A</span>
+          <p className="eyebrow">There’s room for one more</p>
+          <h1 id="register-title">Come on in.</h1>
+          <p className="auth-copy">Save the recipes you love, plan an easier week, and share something good.</p>
+          {error && <div className="form-alert" role="alert">{error}</div>}
+          <form onSubmit={handleSubmit} className="recipe-form">
+            <label htmlFor="register-name">Your name<input id="register-name" className="form-control" type="text" value={name} onChange={(event) => setName(event.target.value)} minLength="2" maxLength="60" autoComplete="name" required /></label>
+            <label htmlFor="register-email">Email address<input id="register-email" className="form-control" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>
+            <label htmlFor="register-password">Password <span className="field-hint">At least 6 characters</span><input id="register-password" className="form-control" type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength="6" autoComplete="new-password" required /></label>
+            <button className="btn btn-premium btn-lg w-100" type="submit" disabled={loading}>{loading ? 'Saving you a seat…' : 'Create my account'}</button>
+          </form>
+          <p className="auth-switch">Already part of the table? <Link to="/login">Log in</Link></p>
+        </section>
+      </main>
+    </>
   );
 };
+
 export default Register;

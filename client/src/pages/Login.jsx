@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import SEO from '../components/SEO';
@@ -8,18 +8,20 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setLoading(true);
+    setError('');
     try {
-      await login(email, password);
-      toast.success('Welcome back! 🎉');
+      await login(email.trim(), password);
+      toast.success('Lovely to have you back.');
       navigate('/');
-    } catch (err) {
-      toast.error(err.response?.data?.message || err.message);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'We couldn’t sign you in. Check your details and try again.');
     } finally {
       setLoading(false);
     }
@@ -27,40 +29,24 @@ const Login = () => {
 
   return (
     <>
-      <SEO title="Login" description="Log in to your Arshiya's Kitchen account." />
-      <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingTop: '80px' }}>
-        <div className="glass-card p-5 animate-fade-in" style={{ width: '100%', maxWidth: '450px' }}>
-          <div className="text-center mb-4">
-            <h2 className="fw-bolder">Welcome Back</h2>
-            <p className="text-secondary">Log in to your account.</p>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Email</label>
-              <input
-                type="email" className="form-control bg-transparent text-white"
-                value={email} onChange={(e) => setEmail(e.target.value)}
-                required autoComplete="email"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="form-label fw-semibold">Password</label>
-              <input
-                type="password" className="form-control bg-transparent text-white"
-                value={password} onChange={(e) => setPassword(e.target.value)}
-                required autoComplete="current-password"
-              />
-            </div>
-            <button className="btn btn-premium w-100 py-2" type="submit" disabled={loading}>
-              {loading ? 'Logging in...' : 'Log In'}
-            </button>
+      <SEO title="Log in" description="Log in to save recipes and plan meals with Arshiya’s Kitchen." />
+      <main className="auth-shell">
+        <section className="auth-panel animate-fade-in" aria-labelledby="login-title">
+          <span className="auth-brand-mark" aria-hidden="true">A</span>
+          <p className="eyebrow">Your place at the table</p>
+          <h1 id="login-title">Welcome back.</h1>
+          <p className="auth-copy">Your saved recipes and good ideas are right where you left them.</p>
+          {error && <div className="form-alert" role="alert">{error}</div>}
+          <form onSubmit={handleSubmit} className="recipe-form">
+            <label htmlFor="login-email">Email address<input id="login-email" className="form-control" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>
+            <label htmlFor="login-password">Password<input id="login-password" className="form-control" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required /></label>
+            <button className="btn btn-premium btn-lg w-100" type="submit" disabled={loading}>{loading ? 'Setting your place…' : 'Log in'}</button>
           </form>
-          <p className="mt-4 text-center text-secondary">
-            Don't have an account? <Link to="/register" style={{ color: 'var(--accent)' }}>Sign Up</Link>
-          </p>
-        </div>
-      </div>
+          <p className="auth-switch">New to the kitchen? <Link to="/register">Join us here</Link></p>
+        </section>
+      </main>
     </>
   );
 };
+
 export default Login;
