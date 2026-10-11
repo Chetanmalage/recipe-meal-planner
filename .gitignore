@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Environment variables (CRITICAL: Keep these secret!)
+.env
+.env.local
+.env.production
+client/.env
+server/.env
+
+# Build outputs
+client/dist/
+server/build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Uploads
+uploads/
