@@ -14,7 +14,7 @@ const RecipeCard = ({ recipe }) => {
         <span className="category-pill">{recipe.category || 'Kitchen favorite'}</span>
       </Link>
       <div className="recipe-card-body">
-        <div className="recipe-card-meta"><span>{totalTime ? `${totalTime} min total` : 'Made to enjoy'}</span>{hasRating ? <span className="rating-stars" aria-label={`${rating.toFixed(1)} out of 5 stars`}>★ <span>{rating.toFixed(1)}</span></span> : <span className="recipe-origin">{recipe.isStarter ? 'House recipe' : 'New to the table'}</span>}</div>
+        <div className="recipe-card-meta"><span>{totalTime ? `${totalTime} min total` : 'Made to enjoy'}</span>{hasRating ? <span className="rating-stars" aria-label={`${rating.toFixed(1)} out of 5 stars`}>★ <span>{rating.toFixed(1)}</span></span> : <span className="recipe-origin">{recipe.isStarter ? recipe.cuisine || 'Indian kitchen' : 'New to the table'}</span>}</div>
         <h2><Link to={`/recipe/${recipe._id}`}>{recipe.title}</Link></h2>
         <p>{description.length > 105 ? `${description.slice(0, 105).trimEnd()}…` : description}</p>
         <div className="recipe-card-footer">

@@ -1,0 +1,182 @@
+/* Shared header: keep navigation exactly centered between the brand and actions. */
+.nav-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  min-height: 76px;
+  gap: 1rem;
+}
+
+.navbar-content { display: contents; }
+.navbar-links {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.45rem;
+}
+.navbar-actions {
+  grid-column: 3;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.15rem;
+  min-width: 0;
+}
+.navbar-premium .nav-link { line-height: 1.2; white-space: nowrap; }
+
+/* Soft Indian-kitchen photo, diffused beneath a readable frosted-white auth panel. */
+.auth-shell {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: transparent;
+}
+.auth-shell::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -12px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--bg-primary) 78%, transparent), color-mix(in srgb, var(--bg-primary) 90%, transparent)),
+    url('/images/indian-kitchen-background.webp') center / cover;
+  filter: blur(7px) saturate(.82);
+  transform: scale(1.025);
+}
+.auth-panel {
+  min-width: 0;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border-color: color-mix(in srgb, var(--surface) 70%, var(--border-glass));
+  backdrop-filter: blur(18px);
+}
+.auth-panel .recipe-form,
+.auth-panel .recipe-form label,
+.auth-panel .form-control { min-width: 0; }
+.google-signin-shell {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  margin: 0 auto;
+}
+.google-signin-shell > div { max-width: 100%; }
+.google-signin-shell iframe { max-width: 100%; }
+.google-signin-note {
+  margin: .55rem 0 0;
+  color: var(--text-secondary);
+  font-size: .73rem;
+  text-align: center;
+}
+.auth-divider { margin: 1.35rem 0 .8rem; }
+
+/* Site-wide footer. */
+#root { display: flex; flex-direction: column; }
+#main-content { flex: 1 0 auto; }
+.site-footer {
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+  display: block;
+  padding: 2rem 0 1.1rem;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--bg-secondary) 72%, var(--surface));
+  border-top: 1px solid var(--border-glass);
+  font-size: .82rem;
+}
+.footer-inner { display: grid; gap: 1.45rem; }
+.footer-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.footer-branding > a {
+  display: inline-flex;
+  align-items: center;
+  gap: .65rem;
+  color: var(--text-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+.footer-branding .brand-mark { width: 32px; height: 32px; font-size: 1rem; }
+.footer-branding p {
+  margin: .55rem 0 0 .1rem;
+  color: var(--text-secondary);
+  font-size: .8rem;
+}
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(.8rem, 2vw, 1.6rem);
+  flex-wrap: wrap;
+}
+.footer-links a {
+  color: var(--text-secondary);
+  font-size: .79rem;
+  text-decoration: none;
+}
+.footer-links a:hover { color: var(--accent); }
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: .9rem;
+  border-top: 1px solid var(--border-glass);
+  font-size: .72rem;
+}
+
+/* Show both the meal type and Indian region on each house-recipe detail cover. */
+.recipe-cover-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .55rem; }
+.recipe-cover-tags .category-pill { margin: 0; }
+.recipe-cover-tags .cuisine-pill { background: color-mix(in srgb, var(--accent) 72%, #17251b); }
+
+@media (max-width: 991px) {
+  .nav-inner { display: flex; justify-content: space-between; }
+  .nav-menu-toggle { margin-left: auto; }
+  .navbar-content {
+    position: absolute;
+    top: 75px;
+    left: 0;
+    right: 0;
+    display: none;
+    align-items: stretch;
+    gap: 1.1rem;
+    padding: 1rem 1.25rem 1.25rem;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-glass);
+  }
+  .navbar-content.is-open { display: grid; }
+  .navbar-links {
+    position: static;
+    left: auto;
+    transform: none;
+    grid-column: auto;
+    align-items: stretch;
+    flex-direction: column;
+    gap: .35rem;
+  }
+  .navbar-actions {
+    grid-column: auto;
+    min-height: 44px;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: row;
+    gap: .65rem;
+    flex-wrap: wrap;
+  }
+  .navbar-actions .theme-toggle { flex: 0 0 40px; }
+  .navbar-actions .nav-link { align-self: center; }
+}
+
+@media (max-width: 700px) {
+  .footer-top { align-items: flex-start; flex-direction: column; gap: 1.2rem; }
+  .footer-links { justify-content: flex-start; gap: .8rem 1.1rem; }
+  .footer-bottom { align-items: flex-start; flex-direction: column; gap: .35rem; }
+}

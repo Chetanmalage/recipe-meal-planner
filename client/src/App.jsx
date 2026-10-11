@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import Navbar from './components/Navbar';
+import SiteFooter from './components/SiteFooter';
 import { LoadingPage } from './components/LoadingSkeleton';
 import { useAuth } from './context/AuthContext';
 import { useTheme } from './context/ThemeContext';
@@ -48,6 +49,7 @@ function App() {
           </Routes>
         </Suspense>
       </div>
+      <SiteFooter />
       <ToastContainer position="top-right" autoClose={3200} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover theme={theme} />
     </>
   );

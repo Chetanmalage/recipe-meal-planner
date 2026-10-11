@@ -28,7 +28,7 @@ const Home = () => {
   const { user } = useAuth();
 
   const visibleStarters = useMemo(() => starterRecipes.filter((recipe) => {
-    const searchableText = [recipe.title, recipe.description, recipe.category, ...(recipe.ingredients || [])].join(' ').toLowerCase();
+    const searchableText = [recipe.title, recipe.description, recipe.category, recipe.cuisine, ...(recipe.ingredients || [])].join(' ').toLowerCase();
     const matchesKeyword = !debouncedKeyword || searchableText.includes(debouncedKeyword.toLowerCase());
     const matchesCategory = activeCategory === 'All' || recipe.category === activeCategory;
     const matchesHouseFilter = starterFilter === 'all'
@@ -96,13 +96,13 @@ const Home = () => {
 
   return (
     <>
-      <SEO title="Recipes made for sharing" description="Find your next favorite, save the recipes you love, and make weeknight cooking feel easier with Arshiya’s Kitchen." />
+      <SEO title="Indian recipes made for sharing" description="Explore Indian home recipes, save the ones you love, and make weeknight cooking feel easier with Arshiya’s Kitchen." image="/images/indian-thali-hero.webp" />
       <main className="container home-shell">
         <section className="hero-panel animate-fade-in" aria-labelledby="home-title">
           <div className="hero-copy">
-            <p className="eyebrow hero-eyebrow"><span aria-hidden="true">✿</span> A little corner for good food</p>
+            <p className="eyebrow hero-eyebrow"><span aria-hidden="true">✿</span> Indian food, made for real life</p>
             <h1 id="home-title">Make something<br /><span>delicious.</span></h1>
-            <p className="hero-subtitle">Simple, well-loved ideas for whatever kind of day it is — and a table where home cooks pass their favorites around.</p>
+            <p className="hero-subtitle">Regional Indian favorites, practical weeknight meals and the kind of recipes home cooks love to pass around.</p>
             <div className="hero-actions">
               {user ? <Link to="/add-recipe" className="btn btn-premium btn-lg">Share a recipe <span aria-hidden="true">↗</span></Link> : <a className="btn btn-premium btn-lg" href="#house-recipes">Find your next favorite <span aria-hidden="true">↓</span></a>}
               <a className="hero-text-link" href="#recipe-discovery">Visit the community cookbook <span aria-hidden="true">↗</span></a>
@@ -111,10 +111,10 @@ const Home = () => {
           </div>
           <div className="hero-visual">
             <figure className="hero-photo">
-              <img src="/images/community-table.jpg" alt="A colorful meal shared around the table" fetchPriority="high" />
-              <figcaption><span>Gather around</span><strong>There’s always room for one more.</strong></figcaption>
+              <img src="/images/indian-thali-hero.webp" alt="A traditional Indian thali with dal, rice, roti and chutney" fetchPriority="high" />
+              <figcaption><span>From our Indian kitchen</span><strong>There’s always room for one more.</strong></figcaption>
             </figure>
-            <div className="hero-note-card"><span className="hero-note-icon" aria-hidden="true">✳</span><div><strong>Good food, no fuss</strong><span>Find something lovely to make.</span></div></div>
+            <div className="hero-note-card"><span className="hero-note-icon" aria-hidden="true">✳</span><div><strong>Good food, no fuss</strong><span>Find a new Indian favorite.</span></div></div>
             <span className="hero-sticker" aria-hidden="true">made<br />with love</span>
           </div>
         </section>
@@ -136,8 +136,8 @@ const Home = () => {
 
         <section className="starter-section" id="house-recipes" aria-labelledby="starter-heading">
           <div className="section-heading starter-heading">
-            <div><p className="eyebrow">From our kitchen</p><h2 id="starter-heading">Start with something good.</h2><p className="section-intro">Tested, comforting recipes for the everyday table. No account needed to get cooking.</p></div>
-            <span className="starter-count">{visibleStarters.length} of {starterRecipes.length} kitchen-tested recipes</span>
+            <div><p className="eyebrow">From our Indian kitchen</p><h2 id="starter-heading">Everyday favorites, made at home.</h2><p className="section-intro">Regional Indian breakfasts, curries, snacks and sweets. No account needed to get cooking.</p></div>
+            <span className="starter-count">{visibleStarters.length} of {starterRecipes.length} Indian recipes</span>
           </div>
           <div className="starter-toolbar" role="group" aria-label="Filter house recipes">
             <span className="starter-toolbar-label">Find your kind of recipe</span>
@@ -167,7 +167,6 @@ const Home = () => {
             </>
           )}
         </section>
-        <footer className="site-footer"><Link to="/">Arshiya’s Kitchen</Link><span>A good meal is even better shared.</span><Link to="/meal-planner">Plan something lovely →</Link></footer>
       </main>
     </>
   );
