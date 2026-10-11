@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import RecipeCard from '../components/RecipeCard';
 import { LoadingGrid } from '../components/LoadingSkeleton';
@@ -24,6 +24,7 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ pages: 1, total: 0, page: 1 });
   const [loadError, setLoadError] = useState(false);
+  const requestIdRef = useRef(0);
   const { user } = useAuth();
 
   const visibleStarters = useMemo(() => starterRecipes.filter((recipe) => {
@@ -38,19 +39,24 @@ const Home = () => {
   }, [keyword]);
 
   const fetchRecipes = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
     setLoadError(false);
     try {
       const { data } = await api.get('/recipes', {
         params: { keyword: debouncedKeyword, category: activeCategory === 'All' ? '' : activeCategory, page, limit: 9 },
       });
-      setRecipes(data.items || []);
-      setPagination(data.pagination || { pages: 1, total: 0, page: 1 });
+      if (requestId === requestIdRef.current) {
+        setRecipes(data.items || []);
+        setPagination(data.pagination || { pages: 1, total: 0, page: 1 });
+      }
     } catch {
-      setRecipes([]);
-      setPagination({ pages: 1, total: 0, page: 1 });
-      setLoadError(true);
+      if (requestId === requestIdRef.current) {
+        setRecipes([]);
+        setPagination({ pages: 1, total: 0, page: 1 });
+        setLoadError(true);
+      }
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) setLoading(false);
     }
   }, [debouncedKeyword, activeCategory, page]);
 
@@ -59,17 +65,26 @@ const Home = () => {
     return () => window.clearTimeout(timer);
   }, [fetchRecipes]);
 
+  useEffect(() => () => { requestIdRef.current += 1; }, []);
+
   const handleKeyword = (event) => {
-    setKeyword(event.target.value);
+    const nextKeyword = event.target.value;
+    if (nextKeyword === keyword) return;
+    requestIdRef.current += 1;
+    setKeyword(nextKeyword);
     setPage(1);
     setLoading(true);
   };
   const handleCategory = (category) => {
+    if (category === activeCategory) return;
+    requestIdRef.current += 1;
     setActiveCategory(category);
     setPage(1);
     setLoading(true);
   };
   const changePage = (nextPage) => {
+    if (nextPage === page) return;
+    requestIdRef.current += 1;
     setPage(nextPage);
     setLoading(true);
     document.getElementById('recipe-discovery')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -82,7 +97,7 @@ const Home = () => {
         <section className="hero-panel animate-fade-in" aria-labelledby="home-title">
           <div className="hero-copy">
             <p className="eyebrow hero-eyebrow"><span aria-hidden="true">✿</span> A little corner for good food</p>
-            <h1 id="home-title">Make something<br /><span>worth gathering for.</span></h1>
+            <h1 id="home-title">Make something<br /><span>delicious.</span></h1>
             <p className="hero-subtitle">Simple, well-loved ideas for whatever kind of day it is — and a table where home cooks pass their favorites around.</p>
             <div className="hero-actions">
               {user ? <Link to="/add-recipe" className="btn btn-premium btn-lg">Share a recipe <span aria-hidden="true">↗</span></Link> : <a className="btn btn-premium btn-lg" href="#house-recipes">Find your next favorite <span aria-hidden="true">↓</span></a>}

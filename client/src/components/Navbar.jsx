@@ -37,7 +37,7 @@ const Navbar = () => {
         <div className={`navbar-content${menuOpen ? ' is-open' : ''}`} id="primary-navigation">
           <div className="navbar-links">
             <NavLink className={navClass} to="/" end onClick={closeMenu}>Discover</NavLink>
-            {user && <NavLink className={navClass} to="/favourites" onClick={closeMenu}>Favourites</NavLink>}
+            <NavLink className={navClass} to="/favourites" onClick={closeMenu}>Favourites</NavLink>
             {user && <NavLink className={navClass} to="/meal-planner" onClick={closeMenu}>Meal planner</NavLink>}
             {user?.role === 'admin' && <NavLink className={navClass} to="/admin" onClick={closeMenu}>Admin</NavLink>}
           </div>

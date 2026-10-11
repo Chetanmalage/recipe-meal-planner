@@ -20,7 +20,11 @@ const toggleFavourite = async (req, res, next) => {
 
 const getFavourites = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id).populate('favourites', 'title imageUrl category rating numReviews description');
+    const user = await User.findById(req.user._id).populate({
+      path: 'favourites',
+      select: 'title imageUrl category rating numReviews description prepTime cookTime author',
+      populate: { path: 'author', select: 'name' },
+    });
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, recipes: user.favourites });
   } catch (err) {
