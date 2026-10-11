@@ -28,10 +28,14 @@ const Home = () => {
   const { user } = useAuth();
 
   const visibleStarters = useMemo(() => starterRecipes.filter((recipe) => {
-    if (starterFilter === 'quick') return recipe.prepTime + recipe.cookTime <= 30;
-    if (starterFilter === 'vegetarian') return recipe.vegetarian;
-    return true;
-  }), [starterFilter]);
+    const searchableText = [recipe.title, recipe.description, recipe.category, ...(recipe.ingredients || [])].join(' ').toLowerCase();
+    const matchesKeyword = !debouncedKeyword || searchableText.includes(debouncedKeyword.toLowerCase());
+    const matchesCategory = activeCategory === 'All' || recipe.category === activeCategory;
+    const matchesHouseFilter = starterFilter === 'all'
+      || (starterFilter === 'quick' && recipe.prepTime + recipe.cookTime <= 30)
+      || (starterFilter === 'vegetarian' && recipe.vegetarian);
+    return matchesKeyword && matchesCategory && matchesHouseFilter;
+  }), [starterFilter, debouncedKeyword, activeCategory]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedKeyword(keyword.trim()), 300);
@@ -121,10 +125,19 @@ const Home = () => {
           <div><span className="welcome-icon" aria-hidden="true">▦</span><p><strong>Make the week feel easier</strong><span>Build a flexible plan, one meal at a time.</span></p></div>
         </section>
 
+        <section className="recipe-finder" aria-label="Search and filter recipes">
+          <div className="search-row">
+            <div className="search-box"><span aria-hidden="true">⌕</span><label className="visually-hidden" htmlFor="recipe-search">Search all recipes and ingredients</label><input id="recipe-search" type="search" placeholder="Search all recipes, ingredients, or ideas…" value={keyword} onChange={handleKeyword} />{keyword && <button type="button" className="search-clear" onClick={() => handleKeyword({ target: { value: '' } })} aria-label="Clear recipe search">×</button>}</div>
+          </div>
+          <div className="category-scroll" role="group" aria-label="Filter by meal type">
+            {categories.map((category) => <button key={category} type="button" className={`category-filter${activeCategory === category ? ' is-active' : ''}`} aria-pressed={activeCategory === category} onClick={() => handleCategory(category)}>{category}</button>)}
+          </div>
+        </section>
+
         <section className="starter-section" id="house-recipes" aria-labelledby="starter-heading">
           <div className="section-heading starter-heading">
-            <div><p className="eyebrow">From our kitchen</p><h2 id="starter-heading">A few good places to start.</h2><p className="section-intro">Tested, comforting recipes for the everyday table. No account needed to get cooking.</p></div>
-            <span className="starter-count">{visibleStarters.length} kitchen-tested ideas</span>
+            <div><p className="eyebrow">From our kitchen</p><h2 id="starter-heading">Start with something good.</h2><p className="section-intro">Tested, comforting recipes for the everyday table. No account needed to get cooking.</p></div>
+            <span className="starter-count">{visibleStarters.length} of {starterRecipes.length} kitchen-tested recipes</span>
           </div>
           <div className="starter-toolbar" role="group" aria-label="Filter house recipes">
             <span className="starter-toolbar-label">Find your kind of recipe</span>
@@ -132,20 +145,16 @@ const Home = () => {
               {starterFilters.map((filter) => <button key={filter.id} type="button" className={`starter-filter${starterFilter === filter.id ? ' is-active' : ''}`} aria-pressed={starterFilter === filter.id} onClick={() => setStarterFilter(filter.id)}>{filter.label}</button>)}
             </div>
           </div>
-          <div className="recipe-grid starter-grid">{visibleStarters.map((recipe) => <RecipeCard recipe={recipe} key={recipe._id} />)}</div>
-          <p className="starter-note"><span aria-hidden="true">✳</span> Every house recipe includes adjustable servings, a ready-to-copy shopping list, and a print-friendly view.</p>
+          {visibleStarters.length ? <div className="recipe-grid starter-grid">{visibleStarters.map((recipe) => <RecipeCard recipe={recipe} key={recipe._id} />)}</div> : (
+            <div className="starter-empty-state"><h3>No house recipes match those filters.</h3><p>Try another search, or continue to the community cookbook below.</p><button className="btn btn-glass" type="button" onClick={() => { setStarterFilter('all'); handleKeyword({ target: { value: '' } }); handleCategory('All'); }}>Reset filters</button></div>
+          )}
+          {visibleStarters.length > 0 && <p className="starter-note"><span aria-hidden="true">✳</span> Every house recipe includes adjustable servings, a ready-to-copy shopping list, and a print-friendly view.</p>}
         </section>
 
         <section className="discovery-section" id="recipe-discovery" aria-labelledby="recipe-heading">
           <div className="section-heading discovery-heading">
             <div><p className="eyebrow">The community cookbook</p><h2 id="recipe-heading">What’s cooking at your place?</h2><p className="section-intro">Recipes shared by home cooks in our community.</p></div>
             <span className="results-count" aria-live="polite">{pagination.total} {pagination.total === 1 ? 'recipe' : 'recipes'}</span>
-          </div>
-          <div className="search-row">
-            <div className="search-box"><span aria-hidden="true">⌕</span><label className="visually-hidden" htmlFor="recipe-search">Search recipes and ingredients</label><input id="recipe-search" type="search" placeholder="Try a dish, ingredient, or craving…" value={keyword} onChange={handleKeyword} />{keyword && <button type="button" className="search-clear" onClick={() => handleKeyword({ target: { value: '' } })} aria-label="Clear recipe search">×</button>}</div>
-          </div>
-          <div className="category-scroll" role="group" aria-label="Filter by meal type">
-            {categories.map((category) => <button key={category} type="button" className={`category-filter${activeCategory === category ? ' is-active' : ''}`} aria-pressed={activeCategory === category} onClick={() => handleCategory(category)}>{category}</button>)}
           </div>
           {loading ? <LoadingGrid count={6} /> : loadError ? (
             <div className="empty-state" role="alert"><span aria-hidden="true">☕</span><h3>The community kitchen is taking a breather.</h3><p>We couldn’t reach the shared cookbook just now. The house recipes above are ready to browse while it comes back.</p><button className="btn btn-premium" type="button" onClick={() => { setLoading(true); void fetchRecipes(); }}>Try again</button></div>

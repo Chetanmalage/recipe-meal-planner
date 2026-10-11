@@ -42,7 +42,7 @@ function App() {
             <Route path="/add-recipe" element={<ProtectedRoute><AddRecipe /></ProtectedRoute>} />
             <Route path="/edit-recipe/:id" element={<ProtectedRoute><EditRecipe /></ProtectedRoute>} />
             <Route path="/favourites" element={<Favourites />} />
-            <Route path="/meal-planner" element={<ProtectedRoute><MealPlanner /></ProtectedRoute>} />
+            <Route path="/meal-planner" element={<MealPlanner />} />
             <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

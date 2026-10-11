@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import SEO from '../components/SEO';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 
 const safeDestination = (from) => {
   const path = typeof from === 'string'
@@ -23,7 +24,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -44,6 +45,24 @@ const Login = () => {
     }
   };
 
+  const handleGoogleSuccess = async (response) => {
+    if (!response.credential) {
+      setError('Google did not return a sign-in credential. Please try again.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      await googleLogin(response.credential);
+      toast.success('Lovely to have you back.');
+      navigate(safeDestination(location.state?.from), { replace: true });
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Google sign-in didn’t finish. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <SEO title="Log in" description="Log in to save recipes and plan meals with Arshiya’s Kitchen." />
@@ -54,6 +73,10 @@ const Login = () => {
           <h1 id="login-title">Welcome back.</h1>
           <p className="auth-copy">Your saved recipes and good ideas are right where you left them.</p>
           {error && <div className="form-alert" role="alert">{error}</div>}
+          {import.meta.env.VITE_GOOGLE_CLIENT_ID && <>
+            <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={() => setError('Google sign-in didn’t finish. You can try again, or use email and password.')} disabled={loading} />
+            <div className="auth-divider"><span>or continue with email</span></div>
+          </>}
           <form onSubmit={handleSubmit} className="recipe-form">
             <label htmlFor="login-email">Email address<input id="login-email" className="form-control" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>
             <label htmlFor="login-password">Password<input id="login-password" className="form-control" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required /></label>

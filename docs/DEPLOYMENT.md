@@ -2,7 +2,7 @@
 
 ## Live services
 
-- **Website:** <https://recipe-meal-planner.vercel.app>
+- **Website:** <https://recipe-meal-planner-omega.vercel.app>
 - **API health:** <https://recipe-meal-planner-8dbv.onrender.com/api/health>
 - **API base:** `https://recipe-meal-planner-8dbv.onrender.com/api`
 
@@ -12,7 +12,9 @@ The repository is configured for a Vercel static frontend and a Render Node API 
 
 ### Frontend (Vercel)
 
-The tracked `client/.env.production` points the production build at the current Render API. Keep this value in step with the public API URL if the Render service is renamed. The value is a public endpoint, not a secret. The Vercel project root is `client`; Vercel builds with `npm ci` and `npm run build`. `client/vercel.json` retains the SPA fallback so direct links such as `/recipe/:id` continue to load.
+The tracked `client/.env.production` points the production build at the current Render API and contains the public Google OAuth Web client ID. These values are intentionally public and are bundled into the client. Keep the API URL in step with the public API if the Render service is renamed. The Vercel project root is `client`; Vercel builds with `npm ci` and `npm run build`. `client/vercel.json` retains the SPA fallback so direct links such as `/recipe/:id` continue to load.
+
+To enable Google sign-in, create an OAuth 2.0 **Web application** client ID in Google Cloud Console. Add `https://recipe-meal-planner-omega.vercel.app` and `http://localhost:5173` as authorized JavaScript origins (add the older Vercel hostname only if you still use it). Set the same client ID as `VITE_GOOGLE_CLIENT_ID` in `client/.env.production` and `GOOGLE_CLIENT_ID` in Render, then redeploy both services. The client ID is public configuration; this ID-token flow does not require a client secret. The Google button remains hidden if the frontend variable is unset.
 
 ### API (Render)
 
@@ -24,9 +26,10 @@ The existing `recipe-meal-planner` service uses `server/`, Node, the `main` bran
 - `NODE_ENV=production`
 - `MONGO_URI`: private MongoDB Atlas connection string
 - `JWT_SECRET`: private random value of at least 32 characters
-- `CLIENT_URL=https://recipe-meal-planner.vercel.app`
+- `CLIENT_URL=https://recipe-meal-planner.vercel.app,https://recipe-meal-planner-omega.vercel.app`
+- `GOOGLE_CLIENT_ID`: the same public OAuth Web client ID configured for the frontend as `VITE_GOOGLE_CLIENT_ID`
 
-Set private values in the Render service environment, never in GitHub or this repository. If serving the frontend from an additional domain, append that exact origin to `CLIENT_URL` as a comma-separated value. Use Cloudinary credentials in Render for reliable production image storage; they remain optional for a basic demo.
+Set private values in the Render service environment, never in GitHub or this repository. `CLIENT_URL` is a comma-separated allowlist of exact frontend origins; preserve the existing origins when adding another domain. Use Cloudinary credentials in Render for reliable production image storage; they remain optional for a basic demo.
 
 ## Database and first admin
 

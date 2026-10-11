@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import SEO from '../components/SEO';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -9,7 +11,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
@@ -26,6 +28,24 @@ const Register = () => {
     }
   };
 
+  const handleGoogleSuccess = async (response) => {
+    if (!response.credential) {
+      setError('Google did not return a sign-in credential. Please try again.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      await googleLogin(response.credential);
+      toast.success('Welcome to Arshiya’s Kitchen.');
+      navigate('/');
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Google sign-in didn’t finish. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <SEO title="Join the kitchen" description="Create an account to share recipes, keep favorites, and plan your week." />
@@ -36,6 +56,10 @@ const Register = () => {
           <h1 id="register-title">Come on in.</h1>
           <p className="auth-copy">Save the recipes you love, plan an easier week, and share something good.</p>
           {error && <div className="form-alert" role="alert">{error}</div>}
+          {import.meta.env.VITE_GOOGLE_CLIENT_ID && <>
+            <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={() => setError('Google sign-in didn’t finish. You can try again, or use email and password.')} disabled={loading} />
+            <div className="auth-divider"><span>or sign up with email</span></div>
+          </>}
           <form onSubmit={handleSubmit} className="recipe-form">
             <label htmlFor="register-name">Your name<input id="register-name" className="form-control" type="text" value={name} onChange={(event) => setName(event.target.value)} minLength="2" maxLength="60" autoComplete="name" required /></label>
             <label htmlFor="register-email">Email address<input id="register-email" className="form-control" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>
