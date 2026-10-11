@@ -41,7 +41,7 @@ api.interceptors.response.use(
       if (window.location.pathname !== '/login') window.location.href = '/login';
     }
 
-    const silent = ['/auth/login', '/auth/register'].some((path) => requestUrl.includes(path));
+    const silent = ['/auth/login', '/auth/register', '/auth/google'].some((path) => requestUrl.includes(path));
     const readHandledInline = (window.location.pathname === '/' && requestUrl.includes('/recipes'))
       || window.location.pathname.startsWith('/recipe/');
     if (!silent && !readHandledInline && error.code !== 'ERR_CANCELED') toast.error(message);

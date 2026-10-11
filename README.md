@@ -4,7 +4,7 @@ A warm, responsive recipe-sharing and weekly meal-planning app built with React,
 
 ## Try the live app
 
-- **Website:** <https://recipe-meal-planner.vercel.app>
+- **Website:** <https://recipe-meal-planner-omega.vercel.app>
 - **API health:** <https://recipe-meal-planner-8dbv.onrender.com/api/health>
 - **Deployment guide:** [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
@@ -13,14 +13,14 @@ The public site is intentionally open to browse. Create an account to save favor
 ## What’s included
 
 - Friendly, responsive recipe discovery with search and meal-type filters
-- A browsable house collection of five ready-to-cook recipes, including quick and vegetarian filters
+- A browsable house collection of ten ready-to-cook recipes, including quick and vegetarian filters
 - Serving-size adjustment, copyable shopping lists, print-friendly recipe pages, and device-saved house favorites
-- Registration and login with bcrypt-hashed passwords and expiring JWTs
+- Email/password registration plus Google sign-in with server-verified ID tokens and expiring JWTs (Google Web client ID is public configuration; no client secret is needed)
 - Recipe publishing, editing, deletion, text search, and paginated results
-- Favorites and a flexible seven-day meal planner
+- Favorites and a flexible seven-day meal planner; house recipes save locally, while signed-in cooks can add community recipes to their account plan
 - One review per account per recipe, with aggregate star ratings
 - Administrator tools for member and recipe moderation
-- Warm light theme by default, optional dark mode, accessible responsive navigation, and page metadata
+- Clean white-and-sage light theme by default, optional dark mode, stable-position buttons, accessible responsive navigation, and page metadata
 - Security headers, request limits, validation, input sanitization, and rate limiting
 - CI checks for lint, production build, backend tests, syntax, and dependency advisories
 
@@ -74,7 +74,7 @@ The script does not create an account or expose a public role-changing endpoint.
 
 ## Environment and deployment
 
-See `server/.env.example`, `client/.env.example`, and the [deployment runbook](docs/DEPLOYMENT.md). The production frontend uses `client/.env.production` to point at the current public API origin; that URL is public configuration, not a secret. The API’s `CLIENT_URL` must allow the exact frontend origin. Keep private database, JWT, and Cloudinary credentials in the hosting provider’s environment settings, never in Git.
+See `server/.env.example`, `client/.env.example`, and the [deployment runbook](docs/DEPLOYMENT.md). The production frontend uses `client/.env.production` for the public API origin and Google OAuth Web client ID; neither value is a secret. The API’s `CLIENT_URL` must allow the exact frontend origin. Keep private database, JWT, and Cloudinary credentials in the hosting provider’s environment settings, never in Git.
 
 ## Quality checks
 
@@ -83,4 +83,4 @@ cd client && npm ci && npm run lint && npm run build && npm audit --audit-level=
 cd ../server && npm ci && npm test && npm audit --audit-level=high
 ```
 
-The homepage’s shared-meal photograph (`client/public/images/community-table.jpg`) was sourced from [Unsplash](https://unsplash.com/license). Recipe photographs are provided by recipe authors.
+The homepage’s shared-meal photograph (`client/public/images/community-table.jpg`) was sourced from [Unsplash](https://unsplash.com/license). The ten house recipes use original project-created food photography; community recipe photos are supplied by recipe authors.

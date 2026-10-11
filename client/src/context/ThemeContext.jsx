@@ -9,7 +9,7 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#202923' : '#fbf7ee');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#202923' : '#f8faf8');
   }, [theme]);
 
   const toggleTheme = () => {

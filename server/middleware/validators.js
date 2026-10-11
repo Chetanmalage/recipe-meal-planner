@@ -21,6 +21,11 @@ const loginValidator = [
   handleValidation,
 ];
 
+const googleLoginValidator = [
+  body('credential').isString().isLength({ min: 100, max: 8192 }).withMessage('A valid Google sign-in credential is required'),
+  handleValidation,
+];
+
 const recipeValidator = [
   body('title').trim().isLength({ min: 3, max: 120 }).withMessage('Title must be 3-120 characters'),
   body('description').trim().isLength({ min: 10, max: 500 }).withMessage('Description must be 10-500 characters'),
@@ -43,4 +48,4 @@ const reviewValidator = [
 
 const mongoIdValidator = [param('id').isMongoId().withMessage('Invalid ID'), handleValidation];
 
-module.exports = { registerValidator, loginValidator, recipeValidator, reviewValidator, mongoIdValidator };
+module.exports = { registerValidator, loginValidator, googleLoginValidator, recipeValidator, reviewValidator, mongoIdValidator };
