@@ -13,6 +13,8 @@ The public site is intentionally open to browse. Create an account to save favor
 ## What’s included
 
 - Friendly, responsive recipe discovery with search and meal-type filters
+- A browsable house collection of five ready-to-cook recipes, including quick and vegetarian filters
+- Serving-size adjustment, copyable shopping lists, print-friendly recipe pages, and device-saved house favorites
 - Registration and login with bcrypt-hashed passwords and expiring JWTs
 - Recipe publishing, editing, deletion, text search, and paginated results
 - Favorites and a flexible seven-day meal planner

@@ -1,0 +1,202 @@
+const starterRecipes = [
+  {
+    _id: 'starter-lemon-orzo',
+    isStarter: true,
+    title: 'Creamy lemon orzo with greens',
+    description: 'A one-pot, bright-and-buttery bowl of lemony orzo, tender greens and parmesan for the evenings when easy should still feel special.',
+    imageUrl: '/images/starter-lemon-orzo.webp',
+    category: 'Dinner',
+    prepTime: 5,
+    cookTime: 15,
+    servings: 4,
+    vegetarian: true,
+    rating: 0,
+    numReviews: 0,
+    author: { name: "Arshiya's Kitchen" },
+    ingredients: [
+      '1 tablespoon olive oil',
+      '3 garlic cloves, finely chopped',
+      '1 cup dry orzo',
+      '2 1/2 cups vegetable stock',
+      '1 lemon, zested and juiced',
+      '2 cups baby spinach',
+      '1/3 cup finely grated parmesan',
+      '1/2 teaspoon sea salt, plus more to taste',
+      '1/4 teaspoon black pepper',
+    ],
+    steps: [
+      'Warm the olive oil in a deep skillet over medium heat. Add the garlic and cook for 30 seconds, just until fragrant.',
+      'Stir in the orzo and toast for a minute. Pour in the stock, lemon zest, salt and pepper; bring to a gentle simmer.',
+      'Cook uncovered for 9–11 minutes, stirring often, until the orzo is tender and most of the stock is absorbed. Add a splash of water if the pan gets dry.',
+      'Fold in the spinach until just wilted, then stir through the lemon juice and parmesan. Taste, adjust the seasoning and serve warm.',
+    ],
+  },
+  {
+    _id: 'starter-tomato-grain-bowl',
+    isStarter: true,
+    title: 'Roasted tomato & quinoa bowls',
+    description: 'Jammy tomatoes, crisp chickpeas and cool cucumber come together over fluffy quinoa with a quick lemon-herb dressing.',
+    imageUrl: '/images/starter-tomato-grain-bowl.webp',
+    category: 'Lunch',
+    prepTime: 10,
+    cookTime: 25,
+    servings: 2,
+    vegetarian: true,
+    rating: 0,
+    numReviews: 0,
+    author: { name: "Arshiya's Kitchen" },
+    ingredients: [
+      '1 cup quinoa, rinsed',
+      '1 1/2 cups water',
+      '2 cups cherry tomatoes',
+      '1 can chickpeas, drained and patted dry',
+      '1 tablespoon olive oil',
+      '1/2 teaspoon smoked paprika',
+      '1/2 cucumber, diced',
+      '1/4 cup crumbled feta',
+      '2 tablespoons chopped parsley',
+      '1 lemon, juiced',
+      '2 tablespoons extra-virgin olive oil',
+    ],
+    steps: [
+      'Heat the oven to 220°C / 425°F. Toss the tomatoes and chickpeas with olive oil, smoked paprika and a pinch of salt on a sheet pan.',
+      'Roast for 20–25 minutes, until the tomatoes are blistered and the chickpeas are crisp at the edges.',
+      'Meanwhile, combine quinoa and water in a saucepan. Bring to a boil, cover, lower the heat and simmer for 15 minutes. Rest covered for 5 minutes, then fluff.',
+      'Whisk the lemon juice, extra-virgin olive oil and a pinch of salt. Spoon quinoa into bowls and top with the roasted vegetables, cucumber, feta and parsley. Finish with dressing.',
+    ],
+  },
+  {
+    _id: 'starter-berry-pancakes',
+    isStarter: true,
+    title: 'Weekend berry buttermilk pancakes',
+    description: 'Tall, soft-centered pancakes with golden edges, a handful of berries and just enough maple syrup for a slow morning.',
+    imageUrl: '/images/starter-berry-pancakes.webp',
+    category: 'Breakfast',
+    prepTime: 10,
+    cookTime: 15,
+    servings: 4,
+    vegetarian: true,
+    rating: 0,
+    numReviews: 0,
+    author: { name: "Arshiya's Kitchen" },
+    ingredients: [
+      '1 1/2 cups all-purpose flour',
+      '2 tablespoons sugar',
+      '1 teaspoon baking powder',
+      '1/2 teaspoon baking soda',
+      '1/4 teaspoon fine salt',
+      '1 1/4 cups buttermilk',
+      '1 large egg',
+      '2 tablespoons melted butter, plus more for the pan',
+      '1 cup mixed fresh berries',
+      'Maple syrup, to serve',
+    ],
+    steps: [
+      'Whisk the flour, sugar, baking powder, baking soda and salt in a large bowl.',
+      'In a second bowl, whisk the buttermilk, egg and melted butter. Pour into the dry ingredients and fold until just combined; a few small lumps are perfect.',
+      'Heat a lightly buttered skillet over medium heat. Add a small ladle of batter for each pancake and scatter a few berries on top.',
+      'Cook until bubbles appear and the edges look set, about 2 minutes. Flip and cook for 1–2 minutes more. Serve in a warm stack with berries and maple syrup.',
+    ],
+  },
+  {
+    _id: 'starter-chickpea-curry',
+    isStarter: true,
+    title: 'Coconut chickpea & spinach curry',
+    description: 'A silky, warming pantry curry with chickpeas, coconut milk and handfuls of spinach. Dinner is on the table before the rice cooker is done.',
+    imageUrl: '/images/starter-chickpea-curry.webp',
+    category: 'Dinner',
+    prepTime: 10,
+    cookTime: 20,
+    servings: 4,
+    vegetarian: true,
+    rating: 0,
+    numReviews: 0,
+    author: { name: "Arshiya's Kitchen" },
+    ingredients: [
+      '1 tablespoon coconut oil',
+      '1 small yellow onion, diced',
+      '3 garlic cloves, minced',
+      '1 tablespoon grated fresh ginger',
+      '1 tablespoon mild curry powder',
+      '2 cans chickpeas, drained and rinsed',
+      '1 can coconut milk',
+      '1 cup crushed tomatoes',
+      '3 cups baby spinach',
+      '1 lime, cut into wedges',
+      '2 tablespoons chopped cilantro',
+      'Cooked rice or warm flatbread, to serve',
+    ],
+    steps: [
+      'Heat the coconut oil in a Dutch oven or deep pan over medium heat. Add the onion and cook for 5 minutes until soft.',
+      'Stir in the garlic, ginger and curry powder; cook for 30 seconds. Add the chickpeas, coconut milk and crushed tomatoes.',
+      'Bring to a gentle simmer and cook uncovered for 15 minutes, stirring occasionally, until thick and fragrant.',
+      'Fold in the spinach until wilted. Season with salt and a squeeze of lime, then finish with cilantro. Serve with rice or flatbread.',
+    ],
+  },
+  {
+    _id: 'starter-chocolate-cookies',
+    isStarter: true,
+    title: 'Chewy chocolate chunk oat cookies',
+    description: 'Crisp at the edges, soft in the middle and full of dark chocolate. The kind of small-batch cookie that makes a cup of tea feel like a plan.',
+    imageUrl: '/images/starter-chocolate-cookies.webp',
+    category: 'Dessert',
+    prepTime: 12,
+    cookTime: 12,
+    servings: 12,
+    vegetarian: true,
+    rating: 0,
+    numReviews: 0,
+    author: { name: "Arshiya's Kitchen" },
+    ingredients: [
+      '1/2 cup unsalted butter, softened',
+      '1/2 cup light brown sugar',
+      '1/4 cup granulated sugar',
+      '1 large egg',
+      '1 teaspoon vanilla extract',
+      '1 cup all-purpose flour',
+      '3/4 cup rolled oats',
+      '1/2 teaspoon baking soda',
+      '1/4 teaspoon fine salt',
+      '3/4 cup chopped dark chocolate',
+    ],
+    steps: [
+      'Heat the oven to 180°C / 350°F and line a baking tray with parchment paper.',
+      'Beat the butter and both sugars until creamy. Mix in the egg and vanilla.',
+      'In a second bowl, whisk the flour, oats, baking soda and salt. Fold the dry ingredients into the butter mixture, then fold in the chocolate.',
+      'Scoop 12 dough balls onto the tray with room to spread. Bake for 10–12 minutes until the edges are golden and the centers still look a little soft.',
+      'Cool on the tray for 5 minutes before moving to a rack. The centers will set as they cool.',
+    ],
+  },
+];
+
+const SAVED_KEY = 'arshiyas-kitchen-starter-favorites';
+
+export const getSavedStarterIds = () => {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(SAVED_KEY) || '[]');
+    return Array.isArray(saved) ? saved.filter((id) => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+};
+
+export const toggleSavedStarter = (id) => {
+  const saved = getSavedStarterIds();
+  const alreadySaved = saved.includes(id);
+  const next = alreadySaved ? saved.filter((savedId) => savedId !== id) : [...saved, id];
+  try {
+    window.localStorage.setItem(SAVED_KEY, JSON.stringify(next));
+  } catch {
+    // The in-memory state still works if browser storage is unavailable.
+  }
+  return !alreadySaved;
+};
+
+export const getSavedStarterRecipes = () => {
+  const saved = new Set(getSavedStarterIds());
+  return starterRecipes.filter((recipe) => saved.has(recipe._id));
+};
+
+export const findStarterRecipe = (id) => starterRecipes.find((recipe) => recipe._id === id);
+
+export default starterRecipes;
