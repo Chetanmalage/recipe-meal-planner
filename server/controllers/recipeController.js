@@ -45,7 +45,10 @@ const getRecipeById = async (req, res, next) => {
 const createRecipe = async (req, res, next) => {
   try {
     const { title, description, ingredients, steps, category, prepTime, cookTime, servings } = req.body;
-    const imageUrl = req.file ? req.file.path : req.body.imageUrl;
+    const imageUrl =
+      (req.file && (req.file.path || req.file.secure_url)) ||
+      req.body.imageUrl ||
+      undefined;
 
     const recipe = await Recipe.create({
       title, description, ingredients, steps, category,
@@ -70,7 +73,9 @@ const updateRecipe = async (req, res, next) => {
     }
 
     const updateData = { ...req.body };
-    if (req.file) updateData.imageUrl = req.file.path;
+    if (req.file && (req.file.path || req.file.secure_url)) {
+      updateData.imageUrl = req.file.path || req.file.secure_url;
+    }
 
     const updated = await Recipe.findByIdAndUpdate(req.params.id, updateData, {
       new: true, runValidators: true,

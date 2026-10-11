@@ -3,8 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
-const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
 const hpp = require('hpp');
 const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/db');
@@ -25,17 +23,39 @@ connectDB();
 app.set('trust proxy', 1);
 
 // Security
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 app.use(cors({
   origin: process.env.CLIENT_URL?.split(',') || 'http://localhost:5173',
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(mongoSanitize());
-app.use(xss());
 app.use(hpp());
 app.use(compression());
+
+// Lightweight sanitization (replaces xss-clean + express-mongo-sanitize)
+const sanitize = (obj) => {
+  if (obj && typeof obj === 'object') {
+    for (const key of Object.keys(obj)) {
+      if (key.startsWith('$') || key.includes('.')) {
+        delete obj[key];
+      } else if (typeof obj[key] === 'string') {
+        obj[key] = obj[key].replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+      } else {
+        sanitize(obj[key]);
+      }
+    }
+  }
+  return obj;
+};
+
+app.use((req, res, next) => {
+  if (req.body) sanitize(req.body);
+  if (req.params) sanitize(req.params);
+  next();
+});
 
 // Logging
 if (process.env.NODE_ENV !== 'test') app.use(httpLogger);
@@ -73,7 +93,7 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });
 
 // Handle unhandled rejections
