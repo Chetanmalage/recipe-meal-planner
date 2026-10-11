@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
+const productionApiBase = 'https://recipe-meal-planner-8dbv.onrender.com/api';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: import.meta.env.PROD ? productionApiBase : import.meta.env.VITE_API_URL || '/api',
   withCredentials: true,
   timeout: 15000,
 });
