@@ -1,10 +1,11 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 import Navbar from './components/Navbar';
 import { LoadingPage } from './components/LoadingSkeleton';
 import { useAuth } from './context/AuthContext';
+import { useTheme } from './context/ThemeContext';
 
-// Lazy load pages for better performance
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
@@ -24,24 +25,31 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 };
 
 function App() {
+  const { theme } = useTheme();
+
   return (
     <>
+      <a className="skip-link" href="#main-content">Skip to content</a>
       <Navbar />
-      <Suspense fallback={<LoadingPage />}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/recipe/:id" element={<RecipeDetails />} />
-          <Route path="/add-recipe" element={<ProtectedRoute><AddRecipe /></ProtectedRoute>} />
-          <Route path="/edit-recipe/:id" element={<ProtectedRoute><EditRecipe /></ProtectedRoute>} />
-          <Route path="/favourites" element={<ProtectedRoute><Favourites /></ProtectedRoute>} />
-          <Route path="/meal-planner" element={<ProtectedRoute><MealPlanner /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
+      <div id="main-content" tabIndex="-1">
+        <Suspense fallback={<LoadingPage />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/recipe/:id" element={<RecipeDetails />} />
+            <Route path="/add-recipe" element={<ProtectedRoute><AddRecipe /></ProtectedRoute>} />
+            <Route path="/edit-recipe/:id" element={<ProtectedRoute><EditRecipe /></ProtectedRoute>} />
+            <Route path="/favourites" element={<ProtectedRoute><Favourites /></ProtectedRoute>} />
+            <Route path="/meal-planner" element={<ProtectedRoute><MealPlanner /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </div>
+      <ToastContainer position="top-right" autoClose={3200} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover theme={theme} />
     </>
   );
 }
+
 export default App;
