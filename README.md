@@ -13,14 +13,14 @@ The public site is intentionally open to browse. Create an account to save favor
 ## What’s included
 
 - Friendly, responsive recipe discovery with search and meal-type filters
-- A browsable house collection of ten ready-to-cook recipes, including quick and vegetarian filters
+- A browsable house collection of ten Indian home recipes across regional breakfasts, curries, snacks, and sweets, including quick and vegetarian filters
 - Serving-size adjustment, copyable shopping lists, print-friendly recipe pages, and device-saved house favorites
 - Email/password registration plus Google sign-in with server-verified ID tokens and expiring JWTs (Google Web client ID is public configuration; no client secret is needed)
 - Recipe publishing, editing, deletion, text search, and paginated results
 - Favorites and a flexible seven-day meal planner; house recipes save locally, while signed-in cooks can add community recipes to their account plan
 - One review per account per recipe, with aggregate star ratings
 - Administrator tools for member and recipe moderation
-- Clean white-and-sage light theme by default, optional dark mode, stable-position buttons, accessible responsive navigation, and page metadata
+- Clean white-and-sage light theme by default, optional dark mode, stable-position buttons, centered responsive navigation, a shared site footer, and page metadata
 - Security headers, request limits, validation, input sanitization, and rate limiting
 - CI checks for lint, production build, backend tests, syntax, and dependency advisories
 
@@ -83,4 +83,4 @@ cd client && npm ci && npm run lint && npm run build && npm audit --audit-level=
 cd ../server && npm ci && npm test && npm audit --audit-level=high
 ```
 
-The homepage’s shared-meal photograph (`client/public/images/community-table.jpg`) was sourced from [Unsplash](https://unsplash.com/license). The ten house recipes use original project-created food photography; community recipe photos are supplied by recipe authors.
+The Indian thali homepage visual, soft-focus kitchen backdrop, and ten house-recipe photos are original project-created imagery. Community recipe photos are supplied by recipe authors.

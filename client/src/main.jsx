@@ -10,6 +10,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
+import './site-refresh.css';
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 

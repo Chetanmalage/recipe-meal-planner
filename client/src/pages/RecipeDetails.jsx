@@ -185,9 +185,9 @@ const RecipeDetails = () => {
           <div className="recipe-detail-cover">
             <img src={recipe.imageUrl} alt={recipe.title} />
             <div className="recipe-cover-overlay">
-              <span className="category-pill">{recipe.category}</span>
+              <div className="recipe-cover-tags"><span className="category-pill">{recipe.category}</span>{recipe.cuisine && <span className="category-pill cuisine-pill">{recipe.cuisine}</span>}</div>
               <h1>{recipe.title}</h1>
-              <p>By {recipe.author?.name || 'A community cook'} <span aria-hidden="true">·</span> {recipe.isStarter ? <span className="starter-byline">A house recipe</span> : <><span className="rating-stars">{stars}</span> {Number(recipe.rating || 0).toFixed(1)} ({recipe.numReviews || 0} reviews)</>}</p>
+              <p>By {recipe.author?.name || 'A community cook'} <span aria-hidden="true">·</span> {recipe.isStarter ? <span className="starter-byline">Indian home recipe</span> : <><span className="rating-stars">{stars}</span> {Number(recipe.rating || 0).toFixed(1)} ({recipe.numReviews || 0} reviews)</>}</p>
             </div>
           </div>
           <div className="recipe-detail-content">

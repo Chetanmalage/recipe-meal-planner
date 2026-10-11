@@ -56,16 +56,17 @@ const Register = () => {
           <h1 id="register-title">Come on in.</h1>
           <p className="auth-copy">Save the recipes you love, plan an easier week, and share something good.</p>
           {error && <div className="form-alert" role="alert">{error}</div>}
-          {import.meta.env.VITE_GOOGLE_CLIENT_ID && <>
-            <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={() => setError('Google sign-in didn’t finish. You can try again, or use email and password.')} disabled={loading} />
-            <div className="auth-divider"><span>or sign up with email</span></div>
-          </>}
           <form onSubmit={handleSubmit} className="recipe-form">
             <label htmlFor="register-name">Your name<input id="register-name" className="form-control" type="text" value={name} onChange={(event) => setName(event.target.value)} minLength="2" maxLength="60" autoComplete="name" required /></label>
             <label htmlFor="register-email">Email address<input id="register-email" className="form-control" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>
             <label htmlFor="register-password">Password <span className="field-hint">At least 6 characters</span><input id="register-password" className="form-control" type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength="6" autoComplete="new-password" required /></label>
             <button className="btn btn-premium btn-lg w-100" type="submit" disabled={loading}>{loading ? 'Saving you a seat…' : 'Create my account'}</button>
           </form>
+          {import.meta.env.VITE_GOOGLE_CLIENT_ID && <>
+            <div className="auth-divider"><span>or continue with Google</span></div>
+            <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={() => setError('Google sign-in didn’t finish. You can try again, or use email and password.')} disabled={loading} />
+            <p className="google-signin-note">Quick, secure sign-in with your Google account.</p>
+          </>}
           <p className="auth-switch">Already part of the table? <Link to="/login">Log in</Link></p>
         </section>
       </main>

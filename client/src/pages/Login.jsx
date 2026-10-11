@@ -73,15 +73,16 @@ const Login = () => {
           <h1 id="login-title">Welcome back.</h1>
           <p className="auth-copy">Your saved recipes and good ideas are right where you left them.</p>
           {error && <div className="form-alert" role="alert">{error}</div>}
-          {import.meta.env.VITE_GOOGLE_CLIENT_ID && <>
-            <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={() => setError('Google sign-in didn’t finish. You can try again, or use email and password.')} disabled={loading} />
-            <div className="auth-divider"><span>or continue with email</span></div>
-          </>}
           <form onSubmit={handleSubmit} className="recipe-form">
             <label htmlFor="login-email">Email address<input id="login-email" className="form-control" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>
             <label htmlFor="login-password">Password<input id="login-password" className="form-control" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required /></label>
             <button className="btn btn-premium btn-lg w-100" type="submit" disabled={loading}>{loading ? 'Setting your place…' : 'Log in'}</button>
           </form>
+          {import.meta.env.VITE_GOOGLE_CLIENT_ID && <>
+            <div className="auth-divider"><span>or continue with Google</span></div>
+            <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={() => setError('Google sign-in didn’t finish. You can try again, or use email and password.')} disabled={loading} />
+            <p className="google-signin-note">Quick, secure sign-in with your Google account.</p>
+          </>}
           <p className="auth-switch">New to the kitchen? <Link to="/register">Join us here</Link></p>
         </section>
       </main>
